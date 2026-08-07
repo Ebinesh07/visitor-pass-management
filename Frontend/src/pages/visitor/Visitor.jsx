@@ -14,6 +14,8 @@ import EmptyState from "../../components/common/EmptyState";
 import VisitorTable from "../../components/visitor/VisitorTable";
 import VisitorModal from "../../components/visitor/VisitorModal";
 
+import { useAuth } from "../../context/AuthContext";
+
 const PAGE_SIZE = 8;
 
 const Visitor = () => {
@@ -28,6 +30,8 @@ const Visitor = () => {
   const [search, setSearch] = useState("");
 
   const [page, setPage] = useState(1);
+
+  const { user } = useAuth();
 
   const loadData = async () => {
     try {
@@ -210,15 +214,15 @@ const Visitor = () => {
               />
 
             ) : (
-
-              <VisitorTable
-                visitors={paginatedVisitors}
-                onApprove={approve}
-                onReject={reject}
-                onCheckIn={checkIn}
-                onCheckOut={checkOut}
-                onCancel={cancel}
-              />
+<VisitorTable
+  visitors={paginatedVisitors}
+  role={user?.role}
+  onApprove={approve}
+  onReject={reject}
+  onCheckIn={checkIn}
+  onCheckOut={checkOut}
+  onCancel={cancel}
+/>
 
             )}
 

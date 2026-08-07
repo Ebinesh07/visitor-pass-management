@@ -23,8 +23,28 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["admin", "receptionist", "employee"],
+      enum: [
+        "admin",
+        "receptionist",
+        "employee",
+      ],
       required: true,
+    },
+
+    // Employee account mapping
+    employee: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+      default: null,
+    },
+
+    status: {
+      type: String,
+      enum: [
+        "Active",
+        "Inactive",
+      ],
+      default: "Active",
     },
   },
   {
@@ -32,4 +52,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model(
+  "User",
+  userSchema
+);

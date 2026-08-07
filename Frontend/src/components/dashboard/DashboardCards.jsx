@@ -1,82 +1,95 @@
 import {
-  FaUsers,
-  FaUserClock,
-  FaCircleCheck,
-  FaRightToBracket,
-  FaRightFromBracket,
-} from "react-icons/fa6";
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
-const DashboardCards = ({ dashboard }) => {
-  const cards = [
+const COLORS = [
+  "#F59E0B",
+  "#22C55E",
+  "#8B5CF6",
+  "#0EA5E9",
+  "#EF4444",
+  "#6B7280",
+];
+
+const VisitorChart = ({ dashboard }) => {
+  const data = [
     {
-      title: "Total Visitors",
-      value: dashboard.totalVisitors,
-      icon: <FaUsers />,
-      color: "#2563eb",
+      name: "Pending",
+      value: Number(dashboard.pendingVisitors) || 0,
     },
     {
-      title: "Pending",
-      value: dashboard.pendingVisitors,
-      icon: <FaUserClock />,
-      color: "#f59e0b",
+      name: "Approved",
+      value: Number(dashboard.approvedVisitors) || 0,
     },
     {
-      title: "Approved",
-      value: dashboard.approvedVisitors,
-      icon: <FaCircleCheck />,
-      color: "#22c55e",
+      name: "Checked In",
+      value: Number(dashboard.checkedInVisitors) || 0,
     },
     {
-      title: "Checked-In",
-      value: dashboard.checkedInVisitors,
-      icon: <FaRightToBracket />,
-      color: "#8b5cf6",
+      name: "Checked Out",
+      value: Number(dashboard.checkedOutVisitors) || 0,
     },
     {
-      title: "Checked-Out",
-      value: dashboard.checkedOutVisitors,
-      icon: <FaRightFromBracket />,
-      color: "#ef4444",
+      name: "Rejected",
+      value: Number(dashboard.rejectedVisitors) || 0,
+    },
+    {
+      name: "Cancelled",
+      value: Number(dashboard.cancelledVisitors) || 0,
     },
   ];
 
+  const hasData = data.some((item) => item.value > 0);
+
   return (
-    <div className="row g-4">
+    <div className="chart-card">
+      <div className="chart-header">
+        <h5>Visitor Status</h5>
+      </div>
 
-      {cards.map((card) => (
+      <div style={{ width: "100%", height: 340 }}>
+        {hasData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={110}
+                innerRadius={60}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index]}
+                  />
+                ))}
+              </Pie>
 
-        <div
-          className="col-xl col-lg-4 col-md-6"
-          key={card.title}
-        >
-
-          <div className="dashboard-card">
-
-            <div
-              className="dashboard-icon"
-              style={{
-                background: card.color,
-              }}
-            >
-              {card.icon}
-            </div>
-
-            <div>
-
-              <h6>{card.title}</h6>
-
-              <h2>{card.value}</h2>
-
-            </div>
-
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div
+            style={{
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            No Visitor Data
           </div>
-
-        </div>
-
-      ))}
-
+        )}
+      </div>
     </div>
   );
 };
 
-export default DashboardCards;
+export default VisitorChart;

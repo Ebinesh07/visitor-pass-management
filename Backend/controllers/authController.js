@@ -2,10 +2,17 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
 const jwt = require("jsonwebtoken");
+const Employee = require("../models/Employee");
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const {
+  name,
+  email,
+  password,
+  role,
+  employee,
+} = req.body;
 
     // Check all fields
     if (!name || !email || !password || !role) {
@@ -29,12 +36,16 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = new User({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-    });
+  const user = new User({
+  name,
+  email,
+  password: hashedPassword,
+  role,
+  employee:
+    role === "employee"
+      ? employee
+      : null,
+});
 
     // Save user
     await user.save();
@@ -54,7 +65,6 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check required fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -62,7 +72,6 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Find user
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -72,8 +81,10 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
       return res.status(401).json({
@@ -82,11 +93,25 @@ const loginUser = async (req, res) => {
       });
     }
 
-    // Generate JWT Token
+    // Find linked employee (only for employee role)
+    let employeeId = null;
+
+    if (user.role === "employee") {
+      const employee = await Employee.findOne({
+        email: user.email,
+      });
+
+      if (employee) {
+        employeeId = employee._id;
+      }
+    }
+
+    // Generate JWT
     const token = jwt.sign(
       {
         id: user._id,
         role: user.role,
+        employee: employeeId,
       },
       process.env.JWT_SECRET,
       {
@@ -103,13 +128,19 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        employee: employeeId,
       },
     });
+
   } catch (error) {
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
 

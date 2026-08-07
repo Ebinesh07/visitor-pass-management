@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { Row, Col, Spinner, Alert } from "react-bootstrap";
+import { Row, Col, Alert } from "react-bootstrap";
+
+import { useAuth } from "../../context/AuthContext";
 
 import dashboardService from "../../services/dashboardService";
 import visitorService from "../../services/visitorService";
+
+import Loader from "../../components/common/Loader";
 
 import StatsCards from "../../components/dashboard/StatsCards";
 import VisitorChart from "../../components/dashboard/VisitorChart";
@@ -11,22 +15,28 @@ import RecentActivity from "../../components/dashboard/RecentActivity";
 import QuickActions from "../../components/dashboard/QuickActions";
 
 const Dashboard = () => {
-  const [dashboard, setDashboard] = useState({
-    totalEmployees: 0,
-    totalVisitors: 0,
-    pendingVisitors: 0,
-    approvedVisitors: 0,
-    checkedInVisitors: 0,
-    checkedOutVisitors: 0,
-    rejectedVisitors: 0,
-    cancelledVisitors: 0,
-  });
+  const { user } = useAuth();
 
-  const [recentVisitors, setRecentVisitors] = useState([]);
+  const [dashboard, setDashboard] =
+    useState({
+      totalEmployees: 0,
+      totalVisitors: 0,
+      pendingVisitors: 0,
+      approvedVisitors: 0,
+      checkedInVisitors: 0,
+      checkedOutVisitors: 0,
+      rejectedVisitors: 0,
+      cancelledVisitors: 0,
+    });
 
-  const [loading, setLoading] = useState(true);
+  const [recentVisitors, setRecentVisitors] =
+    useState([]);
 
-  const [error, setError] = useState("");
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   const loadDashboard = async () => {
     try {
@@ -35,12 +45,21 @@ const Dashboard = () => {
       const dashboardData =
         await dashboardService.getDashboard();
 
-      const visitorData =
-        await visitorService.getAllVisitors();
+      setDashboard(
+        dashboardData.dashboard
+      );
 
-      setDashboard(dashboardData.dashboard);
+      if (
+        user?.role === "admin" ||
+        user?.role === "receptionist"
+      ) {
+        const visitorData =
+          await visitorService.getAllVisitors();
 
-      setRecentVisitors(visitorData.visitors);
+        setRecentVisitors(
+          visitorData.visitors || []
+        );
+      }
 
       setError("");
 
@@ -64,12 +83,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div
-        className="d-flex justify-content-center align-items-center"
-        style={{ height: "70vh" }}
-      >
-        <Spinner animation="border" />
-      </div>
+      <Loader text="Loading Dashboard..." />
     );
   }
 
@@ -81,40 +95,69 @@ const Dashboard = () => {
     );
   }
 
-  return (
+  const welcomeMessage = () => {
+    switch (user?.role) {
+
+      case "admin":
+        return "Administrator Dashboard";
+
+      case "receptionist":
+        return "Reception Dashboard";
+
+      case "employee":
+        return "Employee Dashboard";
+
+      default:
+        return "Dashboard";
+    }
+  };
+    return (
     <div>
 
       <div className="page-title mb-4">
 
-        <h2>Dashboard</h2>
+        <h2>{welcomeMessage()}</h2>
 
         <p className="text-muted mb-0">
-          Welcome back, Admin 👋
+          Welcome back,
+          <strong>
+            {" "}
+            {user?.name || "User"}
+          </strong>
+          {" "}👋
         </p>
 
       </div>
 
-      <StatsCards dashboard={dashboard} />
+      <StatsCards
+        dashboard={dashboard}
+        role={user?.role}
+      />
 
-      <Row className="g-4 mt-1">
+      {(user?.role === "admin" ||
+        user?.role === "receptionist") && (
 
-        <Col xl={8}>
+        <Row className="g-4 mt-1">
 
-          <RecentVisitors
-            visitors={recentVisitors}
-          />
+          <Col xl={8}>
 
-        </Col>
+            <RecentVisitors
+              visitors={recentVisitors}
+            />
 
-        <Col xl={4}>
+          </Col>
 
-          <VisitorChart
-            dashboard={dashboard}
-          />
+          <Col xl={4}>
 
-        </Col>
+            <VisitorChart
+              dashboard={dashboard}
+            />
 
-      </Row>
+          </Col>
+
+        </Row>
+
+      )}
 
       <Row className="g-4 mt-1">
 
@@ -122,13 +165,16 @@ const Dashboard = () => {
 
           <RecentActivity
             dashboard={dashboard}
+            role={user?.role}
           />
 
         </Col>
 
         <Col xl={6}>
 
-          <QuickActions />
+          <QuickActions
+            role={user?.role}
+          />
 
         </Col>
 

@@ -4,11 +4,12 @@ const authorizeRoles = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: "Access Forbidden"
+        message: "Access Forbidden",
       });
     }
 
     next();
+
   };
 };
 

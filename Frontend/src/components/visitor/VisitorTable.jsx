@@ -1,4 +1,5 @@
 import { Table, Button, Badge } from "react-bootstrap";
+
 import {
   FaUser,
   FaCircleCheck,
@@ -8,7 +9,7 @@ import {
   FaBan,
 } from "react-icons/fa6";
 
-const getStatus = (status) => {
+const badgeColor = (status) => {
   switch (status) {
     case "Pending":
       return "warning";
@@ -34,17 +35,29 @@ const getStatus = (status) => {
 };
 
 const VisitorTable = ({
-  visitors,
+  visitors = [],
+
+  role = "admin",
+
   onApprove,
+
   onReject,
+
   onCheckIn,
+
   onCheckOut,
+
   onCancel,
 }) => {
+
   return (
+
     <div className="table-responsive">
 
-      <Table hover className="visitor-table align-middle mb-0">
+      <Table
+        hover
+        className="visitor-table align-middle mb-0"
+      >
 
         <thead>
 
@@ -72,160 +85,202 @@ const VisitorTable = ({
 
         <tbody>
 
-          {visitors.map((visitor, index) => (
+          {visitors.length > 0 ? (
 
-            <tr key={visitor._id}>
+            visitors.map(
+              (visitor, index) => (
 
-              <td>{index + 1}</td>
+                <tr key={visitor._id}>
 
-              <td>
+                  <td>
 
-                <div className="visitor-profile">
+                    {index + 1}
 
-                  <div className="visitor-avatar">
+                  </td>
 
-                    <FaUser />
+                  <td>
 
-                  </div>
+                    <div className="visitor-profile">
 
-                  <div>
+                      <div className="visitor-avatar">
 
-                    <h6>
+                        <FaUser />
 
-                      {visitor.visitorName}
+                      </div>
 
-                    </h6>
+                      <div>
 
-                    <span>
+                        <h6>
 
-                      {visitor.phone}
+                          {visitor.visitorName}
 
-                    </span>
+                        </h6>
 
-                  </div>
+                        <span>
 
-                </div>
+                          {visitor.phone}
 
-              </td>
+                        </span>
 
-              <td>
+                      </div>
 
-                {visitor.company}
+                    </div>
 
-              </td>
+                  </td>
 
-              <td>
+                  <td>
 
-                {visitor.employee?.name}
+                    {visitor.company}
 
-              </td>
+                  </td>
 
-              <td>
+                  <td>
 
-                {new Date(
-                  visitor.visitDate
-                ).toLocaleDateString()}
+                    {visitor.employee?.name}
 
-              </td>
+                  </td>
 
-              <td>
+                  <td>
 
-                <Badge bg={getStatus(visitor.status)}>
+                    {new Date(
+                      visitor.visitDate
+                    ).toLocaleDateString()}
 
-                  {visitor.status}
+                  </td>
 
-                </Badge>
+                  <td>
 
-              </td>
-
-              <td>
-
-                <div className="visitor-actions">
-
-                  {visitor.status === "Pending" && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="success"
-                        onClick={() =>
-                          onApprove(visitor)
-                        }
-                      >
-                        <FaCircleCheck />
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() =>
-                          onReject(visitor)
-                        }
-                      >
-                        <FaCircleXmark />
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="dark"
-                        onClick={() =>
-                          onCancel(visitor)
-                        }
-                      >
-                        <FaBan />
-                      </Button>
-                    </>
-                  )}
-
-                  {visitor.status ===
-                    "Approved" && (
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() =>
-                        onCheckIn(visitor)
-                      }
+                    <Badge
+                      bg={badgeColor(
+                        visitor.status
+                      )}
                     >
-                      <FaRightToBracket />
-                    </Button>
-                  )}
+                      {visitor.status}
+                    </Badge>
 
-                  {visitor.status ===
-                    "Checked-In" && (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() =>
-                        onCheckOut(visitor)
-                      }
-                    >
-                      <FaRightFromBracket />
-                    </Button>
-                  )}
+                  </td>
 
-                  {(visitor.status ===
-                    "Rejected" ||
-                    visitor.status ===
-                      "Cancelled" ||
-                    visitor.status ===
-                      "Checked-Out") && (
-                    <span className="text-muted fw-semibold">
-                      Completed
-                    </span>
-                  )}
+                  <td>
 
-                </div>
+                    <div className="visitor-actions">
 
+                                            {/* ===========================
+                          EMPLOYEE ACTIONS
+                      ============================ */}
+
+                      {role === "employee" &&
+                        visitor.status === "Pending" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="success"
+                              className="me-2"
+                              onClick={() =>
+                                onApprove(visitor)
+                              }
+                            >
+                              <FaCircleCheck />
+                            </Button>
+
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() =>
+                                onReject(visitor)
+                              }
+                            >
+                              <FaCircleXmark />
+                            </Button>
+                          </>
+                        )}
+
+                      {/* ===========================
+                          RECEPTIONIST / ADMIN
+                      ============================ */}
+
+                      {(role === "admin" ||
+                        role === "receptionist") && (
+                        <>
+                          {visitor.status ===
+                            "Pending" && (
+                            <Button
+                              size="sm"
+                              variant="dark"
+                              className="me-2"
+                              onClick={() =>
+                                onCancel(visitor)
+                              }
+                            >
+                              <FaBan />
+                            </Button>
+                          )}
+
+                          {visitor.status ===
+                            "Approved" && (
+                            <Button
+                              size="sm"
+                              variant="primary"
+                              className="me-2"
+                              onClick={() =>
+                                onCheckIn(visitor)
+                              }
+                            >
+                              <FaRightToBracket />
+                            </Button>
+                          )}
+
+                          {visitor.status ===
+                            "Checked-In" && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() =>
+                                onCheckOut(visitor)
+                              }
+                            >
+                              <FaRightFromBracket />
+                            </Button>
+                          )}
+                        </>
+                      )}
+
+                      {(visitor.status ===
+                        "Rejected" ||
+                        visitor.status ===
+                          "Cancelled" ||
+                        visitor.status ===
+                          "Checked-Out") && (
+                        <span className="text-muted fw-semibold">
+                          Completed
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              )
+            )
+
+          ) : (
+
+            <tr>
+
+              <td
+                colSpan="7"
+                className="text-center py-5"
+              >
+                No Visitors Found
               </td>
 
             </tr>
 
-          ))}
+          )}
 
         </tbody>
 
       </Table>
 
     </div>
+
   );
 };
 

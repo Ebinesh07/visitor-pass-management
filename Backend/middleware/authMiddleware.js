@@ -2,10 +2,8 @@ const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
   try {
-    // Get token from request header
     const authHeader = req.headers.authorization;
 
-    // Check if token exists
     if (!authHeader) {
       return res.status(401).json({
         success: false,
@@ -13,25 +11,32 @@ const verifyToken = (req, res, next) => {
       });
     }
 
-    // Remove "Bearer "
     const token = authHeader.split(" ")[1];
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Token",
+      });
+    }
 
-    // Store user details in request
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
     req.user = decoded;
 
-    // Go to next middleware/controller
     next();
-  } catch (error) {
-  console.log(error);
 
-  return res.status(401).json({
-    success: false,
-    message: error.message,
-  });
-}
+  } catch (error) {
+
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized Access",
+    });
+
+  }
 };
 
 module.exports = verifyToken;

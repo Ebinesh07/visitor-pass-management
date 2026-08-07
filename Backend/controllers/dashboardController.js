@@ -3,35 +3,73 @@ const Visitor = require("../models/Visitor");
 
 const getDashboard = async (req, res) => {
   try {
-    const totalEmployees = await Employee.countDocuments();
 
-    const totalVisitors = await Visitor.countDocuments();
+    // Employee Count
+    const totalEmployees =
+      await Employee.countDocuments();
 
-    const pendingVisitors = await Visitor.countDocuments({
-      status: "Pending",
-    });
+    // Visitor Count
+    const totalVisitors =
+      await Visitor.countDocuments();
 
-    const approvedVisitors = await Visitor.countDocuments({
-      status: "Approved",
-    });
+    // Pending Visitors
+    const pendingVisitors =
+      await Visitor.countDocuments({
+        status: "Pending",
+      });
 
-    const checkedInVisitors = await Visitor.countDocuments({
-      status: "Checked-In",
-    });
+    // Approved Visitors
+    const approvedVisitors =
+      await Visitor.countDocuments({
+        status: "Approved",
+      });
 
-    const checkedOutVisitors = await Visitor.countDocuments({
-      status: "Checked-Out",
-    });
+    // Checked-In Visitors
+    const checkedInVisitors =
+      await Visitor.countDocuments({
+        status: "Checked-In",
+      });
+          // Checked-Out Visitors
+    const checkedOutVisitors =
+      await Visitor.countDocuments({
+        status: "Checked-Out",
+      });
 
-    const rejectedVisitors = await Visitor.countDocuments({
-      status: "Rejected",
-    });
+    // Rejected Visitors
+    const rejectedVisitors =
+      await Visitor.countDocuments({
+        status: "Rejected",
+      });
 
-    const cancelledVisitors = await Visitor.countDocuments({
-      status: "Cancelled",
-    });
+    // Cancelled Visitors
+    const cancelledVisitors =
+      await Visitor.countDocuments({
+        status: "Cancelled",
+      });
 
-    res.status(200).json({
+    // Today's Visitors
+    const today = new Date();
+
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const todayVisitors =
+      await Visitor.countDocuments({
+        visitDate: {
+          $gte: startOfDay,
+          $lte: endOfDay,
+        },
+      });
+
+    // Visitors Currently Inside
+    const visitorsInside =
+      await Visitor.countDocuments({
+        status: "Checked-In",
+      });
+          return res.status(200).json({
       success: true,
       dashboard: {
         totalEmployees,
@@ -42,13 +80,20 @@ const getDashboard = async (req, res) => {
         checkedOutVisitors,
         rejectedVisitors,
         cancelledVisitors,
+        todayVisitors,
+        visitorsInside,
       },
     });
+
   } catch (error) {
-    res.status(500).json({
+
+    console.error(error);
+
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
+
   }
 };
 

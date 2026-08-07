@@ -24,7 +24,11 @@ router.post(
 router.get(
   "/",
   verifyToken,
-  authorizeRoles("admin", "receptionist"),
+  authorizeRoles(
+    "admin",
+    "receptionist",
+    "employee"
+  ),
   getAllVisitors
 );
 router.put(

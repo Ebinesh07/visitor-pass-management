@@ -1,36 +1,46 @@
 import api from "./api";
 
 const visitorService = {
+  // Get All Visitors
   getAllVisitors: async () => {
     const response = await api.get("/visitors");
     return response.data;
   },
 
+  // Register Visitor
   registerVisitor: async (visitorData) => {
     const response = await api.post(
-      "/visitors/register",
+      "/visitors",
       visitorData
     );
     return response.data;
   },
 
-  approveVisitor: async (id, remarks) => {
+  // Approve Visitor
+  approveVisitor: async (id, remarks = "") => {
     const response = await api.put(
       `/visitors/approve/${id}`,
-      { remarks }
+      {
+        remarks,
+      }
     );
 
     return response.data;
   },
 
-registerVisitor: async (visitorData) => {
-  const response = await api.post(
-    "/visitors",
-    visitorData
-  );
-  return response.data;
-},
+  // Reject Visitor
+  rejectVisitor: async (id, remarks = "") => {
+    const response = await api.put(
+      `/visitors/reject/${id}`,
+      {
+        remarks,
+      }
+    );
 
+    return response.data;
+  },
+
+  // Check In
   checkInVisitor: async (id) => {
     const response = await api.put(
       `/visitors/checkin/${id}`
@@ -39,6 +49,7 @@ registerVisitor: async (visitorData) => {
     return response.data;
   },
 
+  // Check Out
   checkOutVisitor: async (id) => {
     const response = await api.put(
       `/visitors/checkout/${id}`
@@ -47,33 +58,10 @@ registerVisitor: async (visitorData) => {
     return response.data;
   },
 
+  // Cancel Visitor
   cancelVisitor: async (id) => {
     const response = await api.put(
       `/visitors/cancel/${id}`
-    );
-
-    return response.data;
-  },
-
-  getPendingVisitors: async () => {
-    const response = await api.get(
-      "/reports/pending"
-    );
-
-    return response.data;
-  },
-
-  getApprovedVisitors: async () => {
-    const response = await api.get(
-      "/reports/approved"
-    );
-
-    return response.data;
-  },
-
-  getTodayVisitors: async () => {
-    const response = await api.get(
-      "/reports/today"
     );
 
     return response.data;
