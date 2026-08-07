@@ -1,7 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "../pages/auth/Login";
-
 import Dashboard from "../pages/dashboard/Dashboard";
 import Employee from "../pages/employee/Employee";
 import Visitor from "../pages/visitor/Visitor";
@@ -11,35 +10,17 @@ import History from "../pages/history/History";
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
 
-import VisitorRequests from "../pages/employee/VisitorRequests";
-
 const AppRoutes = () => {
   return (
     <Routes>
       {/* Login */}
       <Route path="/" element={<Login />} />
 
-      {/* Dashboard - All Logged In Users */}
+      {/* Dashboard */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute
-            roles={[
-              "admin",
-              "receptionist",
-              "employee",
-            ]}
-          >
-            <Route
-  path="/visitor-requests"
-  element={
-    <ProtectedRoute roles={["employee"]}>
-      <MainLayout>
-        <VisitorRequests />
-      </MainLayout>
-    </ProtectedRoute>
-  }
-/>
+          <ProtectedRoute>
             <MainLayout>
               <Dashboard />
             </MainLayout>
@@ -47,13 +28,11 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Employees - Admin Only */}
+      {/* Employees */}
       <Route
         path="/employees"
         element={
-          <ProtectedRoute
-            roles={["admin"]}
-          >
+          <ProtectedRoute>
             <MainLayout>
               <Employee />
             </MainLayout>
@@ -61,16 +40,11 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Visitors - Admin & Receptionist */}
+      {/* Visitors */}
       <Route
         path="/visitors"
         element={
-          <ProtectedRoute
-            roles={[
-              "admin",
-              "receptionist",
-            ]}
-          >
+          <ProtectedRoute>
             <MainLayout>
               <Visitor />
             </MainLayout>
@@ -78,13 +52,11 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Reports - Admin Only */}
+      {/* Reports */}
       <Route
         path="/reports"
         element={
-          <ProtectedRoute
-            roles={["admin"]}
-          >
+          <ProtectedRoute>
             <MainLayout>
               <Reports />
             </MainLayout>
@@ -92,16 +64,11 @@ const AppRoutes = () => {
         }
       />
 
-      {/* History - Admin & Receptionist */}
+      {/* History */}
       <Route
         path="/history"
         element={
-          <ProtectedRoute
-            roles={[
-              "admin",
-              "receptionist",
-            ]}
-          >
+          <ProtectedRoute>
             <MainLayout>
               <History />
             </MainLayout>
@@ -109,28 +76,10 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Invalid URL */}
+      {/* Default Redirect */}
       <Route
         path="*"
-        element={
-          <ProtectedRoute
-            roles={[
-              "admin",
-              "employee",
-              "receptionist",
-            ]}
-            
-          >
-            <MainLayout>
-              <div className="text-center py-5">
-                <h2>404</h2>
-                <p>
-                  Page Not Found
-                </p>
-              </div>
-            </MainLayout>
-          </ProtectedRoute>
-        }
+        element={<Navigate to="/" replace />}
       />
     </Routes>
   );
