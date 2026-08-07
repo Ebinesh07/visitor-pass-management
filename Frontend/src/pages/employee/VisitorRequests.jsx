@@ -11,7 +11,6 @@ import SearchBar from "../../components/common/SearchBar";
 import EmptyState from "../../components/common/EmptyState";
 
 import VisitorTable from "../../components/visitor/VisitorTable";
-import ApprovalModal from "../../components/visitor/ApprovalModal";
 
 const PAGE_SIZE = 8;
 
